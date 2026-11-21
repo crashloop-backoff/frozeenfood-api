@@ -5,10 +5,12 @@ import com.lezzat.b2b2c.frozenfood.dto.response.CustomerResponse;
 import com.lezzat.b2b2c.frozenfood.entity.Customer;
 import com.lezzat.b2b2c.frozenfood.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,6 +20,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +31,8 @@ public class CustomerService {
     private final PasswordEncoder passwordEncoder;
 
     private static final String UPLOAD_DIR = "uploads/profiles/";
+    private static final Pattern INDONESIAN_PHONE_PATTERN =
+            Pattern.compile(CustomerUpdateRequest.INDONESIAN_PHONE_REGEX);
 
     @Transactional(readOnly = true)
     public List<CustomerResponse> getAllCustomers(String role, String search) {
@@ -64,6 +69,11 @@ public class CustomerService {
 
     @Transactional
     public CustomerResponse updateMyProfile(String currentEmail, CustomerUpdateRequest request) {
+        String normalizedNoTelp = null;
+        if (request.getNoTelp() != null) {
+            normalizedNoTelp = normalizeAndValidatePhone(request.getNoTelp());
+        }
+
         Customer customer = findEntityByEmail(currentEmail);
 
         if (request.getNama() != null && !request.getNama().isBlank()) {
@@ -75,8 +85,8 @@ public class CustomerService {
             }
             customer.setEmail(request.getEmail());
         }
-        if (request.getNoTelp() != null) {
-            customer.setNoTelp(request.getNoTelp());
+        if (normalizedNoTelp != null) {
+            customer.setNoTelp(normalizedNoTelp);
         }
         if (request.getAlamat() != null) {
             customer.setAlamat(request.getAlamat());
@@ -87,6 +97,17 @@ public class CustomerService {
 
         customer.setUpdatedAt(LocalDateTime.now());
         return mapToResponse(customerRepository.save(customer));
+    }
+
+    private String normalizeAndValidatePhone(String rawPhone) {
+        String normalized = CustomerUpdateRequest.normalizePhone(rawPhone);
+        if (normalized == null || !INDONESIAN_PHONE_PATTERN.matcher(normalized).matches()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    CustomerUpdateRequest.INVALID_PHONE_MESSAGE
+            );
+        }
+        return normalized;
     }
 
     @Transactional
