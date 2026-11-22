@@ -18,6 +18,8 @@ public record DeliveryResponse(
         String sumberJarak,
         LocalDateTime estimasiTiba,
         String namaPengantar,
-        String alasanKeputusan
+        String alasanKeputusan,
+        Double latitudeTujuan,
+        Double longitudeTujuan
 ) {
 }

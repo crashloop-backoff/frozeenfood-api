@@ -88,6 +88,13 @@ public class Delivery {
     @Column(name = "alasan_keputusan", columnDefinition = "TEXT")
     private String alasanKeputusan;
 
+    // --- Koordinat tujuan (V5__add_delivery_coordinates.sql) ---
+    @Column(name = "latitude_tujuan")
+    private Double latitudeTujuan;
+
+    @Column(name = "longitude_tujuan")
+    private Double longitudeTujuan;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 

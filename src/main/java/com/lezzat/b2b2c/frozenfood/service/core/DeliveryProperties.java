@@ -26,11 +26,21 @@ import java.time.LocalTime;
 @Setter
 public class DeliveryProperties {
 
+    private double roadDistanceFactor = 1.3;
+    private Store store = new Store();
     private Fee fee = new Fee();
     private Motor motor = new Motor();
     private Schedule schedule = new Schedule();
     private Routing routing = new Routing();
     private Unit unit = new Unit();
+
+    /** Koordinat toko/gudang asal pengiriman (lezzat.delivery.store.*). */
+    @Getter
+    @Setter
+    public static class Store {
+        private double latitude = -7.756318;
+        private double longitude = 110.371033;
+    }
 
     /** KEPUTUSAN toko: <=5 km gratis, mulai 6 km Rp10.000, naik Rp1.000/km, maks Rp35.000. */
     @Getter
@@ -54,6 +64,8 @@ public class DeliveryProperties {
         private double avgSpeedKmh = 25;
         /** ASUMSI: waktu persiapan/packing sebelum berangkat. */
         private int prepMinutes = 20;
+        /** ASUMSI: waktu berhenti/serah terima per titik pengantaran (menit). */
+        private int stopMinutes = 5;
         /** ASUMSI: batas waktu aman barang beku di perjalanan (cooler box). */
         private int maxColdChainMinutes = 60;
         /** ASUMSI: tambahan tunggu bila semua pengantar sedang bertugas. */
@@ -71,16 +83,18 @@ public class DeliveryProperties {
     }
 
     /**
-     * Jarak jalan asli lewat OSRM. Default NONAKTIF: aktifkan setelah syarat
-     * pemakaian layanan rute publik dicek. Bila aktif tapi gagal/lambat,
-     * sistem otomatis memakai Haversine x faktor jalan.
+     * Jarak jalan & rute asli lewat OSRM. Default NONAKTIF (enabled = false).
+     * Cara mengaktifkan: set lezzat.delivery.routing.enabled=true di application.yml
+     * (atau lewat environment variable LEZZAT_DELIVERY_ROUTING_ENABLED=true).
+     * Bila aktif tapi gagal/lambat, sistem otomatis memakai Haversine x faktor jalan.
      */
     @Getter
     @Setter
     public static class Routing {
         private boolean enabled = false;
         private String baseUrl = "https://router.project-osrm.org";
-        private int timeoutMs = 2000;
+        private int timeoutMs = 4000;
+        private String userAgent = "LezzatFrozenFood/1.0 (tugas kuliah)";
     }
 
     /**
