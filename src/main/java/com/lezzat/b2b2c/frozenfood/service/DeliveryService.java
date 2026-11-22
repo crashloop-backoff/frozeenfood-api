@@ -96,6 +96,8 @@ public class DeliveryService {
                 .sumberJarak(plan.sumberJarak())
                 .estimasiTiba(plan.estimasiTiba())
                 .alasanKeputusan(String.join("; ", plan.alasan()))
+                .latitudeTujuan(request.latitudeTujuan())
+                .longitudeTujuan(request.longitudeTujuan())
                 .updatedAt(now)
                 .build();
         Delivery saved = deliveryRepository.save(delivery);
@@ -224,6 +226,7 @@ public class DeliveryService {
         return new DeliveryResponse(d.getIdDelivery(), d.getOrder().getIdOrder(), d.getAlamatTujuan(),
                 d.getJarak(), d.getMetodeDeliv(), d.getStatusDelivery(), d.getCreatedAt(), d.getUpdatedAt(),
                 d.getPelaksana(), d.getOngkir(), d.getSumberJarak(), d.getEstimasiTiba(),
-                d.getNamaPengantar(), d.getAlasanKeputusan());
+                d.getNamaPengantar(), d.getAlasanKeputusan(),
+                d.getLatitudeTujuan(), d.getLongitudeTujuan());
     }
 }

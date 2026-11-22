@@ -63,11 +63,11 @@ public class SmartDeliveryService {
                 .orElseGet(() -> new JarakHasil(hitungJarakKm(destLatitude, destLongitude), "PERKIRAAN"));
     }
 
-    // Koordinat toko/gudang Lezzat Frozen Food.
-    @Value("${lezzat.warehouse.latitude:-7.756318}")
+    // Koordinat toko/gudang Lezzat Frozen Food (utama: lezzat.delivery.store.*, fallback kunci lama lezzat.warehouse.*).
+    @Value("${lezzat.delivery.store.latitude:${lezzat.warehouse.latitude:-7.756318}}")
     private double warehouseLatitude;
 
-    @Value("${lezzat.warehouse.longitude:110.371033}")
+    @Value("${lezzat.delivery.store.longitude:${lezzat.warehouse.longitude:110.371033}}")
     private double warehouseLongitude;
 
     // Disepakati: 15 km.
@@ -86,7 +86,7 @@ public class SmartDeliveryService {
      * Rumus: Haversine (garis lurus) x faktor koreksi jalan.
      */
     public BigDecimal hitungJarakKm(double destLatitude, double destLongitude) {
-        double jarakLurus = haversine(warehouseLatitude, warehouseLongitude, destLatitude, destLongitude);
+        double jarakLurus = haversineKm(warehouseLatitude, warehouseLongitude, destLatitude, destLongitude);
         double perkiraanJarakJalan = jarakLurus * roadDistanceFactor;
         return BigDecimal.valueOf(perkiraanJarakJalan).setScale(2, RoundingMode.HALF_UP);
     }
@@ -107,7 +107,7 @@ public class SmartDeliveryService {
         }
     }
 
-    private double haversine(double lat1, double lon1, double lat2, double lon2) {
+    public static double haversineKm(double lat1, double lon1, double lat2, double lon2) {
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
 

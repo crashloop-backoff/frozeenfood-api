@@ -4,9 +4,12 @@ import com.lezzat.b2b2c.frozenfood.dto.request.DeliveryEstimateRequest;
 import com.lezzat.b2b2c.frozenfood.dto.request.DeliveryKonfirmasiRequest;
 import com.lezzat.b2b2c.frozenfood.dto.request.DeliveryPengantarRequest;
 import com.lezzat.b2b2c.frozenfood.dto.request.DeliveryRequest;
+import com.lezzat.b2b2c.frozenfood.dto.request.DeliveryRouteRequest;
 import com.lezzat.b2b2c.frozenfood.dto.response.DeliveryEstimateResponse;
 import com.lezzat.b2b2c.frozenfood.dto.response.DeliveryResponse;
+import com.lezzat.b2b2c.frozenfood.dto.response.DeliveryRouteResponse;
 import com.lezzat.b2b2c.frozenfood.service.DeliveryService;
+import com.lezzat.b2b2c.frozenfood.service.core.DeliveryRoutePlanner;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,7 @@ import java.util.UUID;
 public class DeliveryController {
 
     private final DeliveryService deliveryService;
+    private final DeliveryRoutePlanner deliveryRoutePlanner;
 
     @GetMapping
     public ResponseEntity<List<DeliveryResponse>> getAll(
@@ -41,6 +45,12 @@ public class DeliveryController {
     @PostMapping("/estimate")
     public ResponseEntity<DeliveryEstimateResponse> estimate(@Valid @RequestBody DeliveryEstimateRequest request) {
         return ResponseEntity.ok(deliveryService.estimate(request));
+    }
+
+    /** Perencanaan rute kurir motor toko untuk beberapa pengiriman (khusus ADMIN). */
+    @PostMapping("/rute")
+    public ResponseEntity<DeliveryRouteResponse> rencanakanRute(@Valid @RequestBody DeliveryRouteRequest request) {
+        return ResponseEntity.ok(deliveryRoutePlanner.rencanakanRute(request.idDeliveries()));
     }
 
     @PatchMapping("/{id}/konfirmasi-admin")

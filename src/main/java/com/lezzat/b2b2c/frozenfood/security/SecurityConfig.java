@@ -84,6 +84,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 // Zona Khusus: Hanya boleh diakses oleh Bony (Gudang/Admin)
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/deliveries/rute").hasRole("ADMIN")
                 // Zona Hibrid: B2B dan B2C bisa melihat katalog produk (GET)
                 .requestMatchers("/api/products/**").permitAll()
                 .requestMatchers("/api/payments/callback").permitAll()
